@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from google.api_core.exceptions import InvalidArgument, PermissionDenied, ResourceExhausted
 
-load_dotenv()
+load_dotenv(dotenv_path="api_keys.env")
 
 class LLM:
     def __init__(self, model_name: str = "gemini-2.0-flash", max_retries: int = 3):
-        print("[INIT] Loading API keys from .env...")
+        print("[INIT] Loading API keys from api_keys.env...")
         self.api_keys = self._load_keys_from_env()
         if not self.api_keys:
             raise RuntimeError("No API keys found in .env file.")
