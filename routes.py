@@ -91,11 +91,17 @@ async def process_image_with_prompt(image: UploadFile, prompt: str, schema):
 async def extract_front(image: UploadFile = File(...)):
     print("[API] /extract/front called")
     prompt = (
-        "You are an assistant specialized in extracting information from images of Tunisian ID cards front side. "
-        "If the image is not a Tunisian ID card front, respond with this message: invalid id card. "
-        "Extract the following details from the image: idNumber, lastName, firstName, fatherFullName, dateOfBirth, placeOfBirth. "
-        "Output format must be JSON."
+        "You are an assistant specialized in analyzing images of Tunisian ID cards (front side only).\n"
+        "- If the image is not the front side of a Tunisian ID card, or if it is a photocopy (e.g., black and white, grayscale, low contrast, missing color features), "
+        "you must respond with exactly this message and nothing else:\n\n"
+        "invalid id card\n\n"
+        "- Do not extract or output any information for invalid or photocopied cards.\n"
+        "- If the card is valid and in color, extract the following fields:\n"
+        "  • idNumber\n  • lastName\n  • firstName\n  • fatherFullName\n  • dateOfBirth\n  • placeOfBirth\n"
+        "- The output must be a single valid JSON object with these fields."
     )
+
+
     return await process_image_with_prompt(image, prompt, TunisianIDCardFront)
 
 
@@ -103,11 +109,17 @@ async def extract_front(image: UploadFile = File(...)):
 async def extract_back(image: UploadFile = File(...)):
     print("[API] /extract/back called")
     prompt = (
-        "You are an assistant specialized in extracting information from images of Tunisian ID cards back side. "
-        "If the image is not a Tunisian ID card back, respond with this message: invalid id card. "
-        "Extract the following details from the image: motherFullName, job, address, dateOfCreation. "
-        "Output format must be JSON."
+        "You are an assistant specialized in analyzing images of Tunisian ID cards (back side only).\n"
+        "- If the image is not the back side of a Tunisian ID card, or if it is a photocopy (e.g., black and white, grayscale, low contrast, or missing color features), "
+        "you must respond with exactly this message and nothing else:\n\n"
+        "invalid id card\n\n"
+        "- Do not extract or output any information for invalid or photocopied cards.\n"
+        "- If the card is valid and in color, extract the following fields:\n"
+        "  • motherFullName\n  • job\n  • address\n  • dateOfCreation\n"
+        "- The output must be a single valid JSON object with these fields."
     )
+
+
     return await process_image_with_prompt(image, prompt, TunisianIDCardBack)
 
 @router.post("/add_api_key")

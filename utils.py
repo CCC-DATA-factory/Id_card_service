@@ -27,15 +27,15 @@ def is_invalid_id_card_message(text: str) -> bool:
 
 def build_prompt(batch: List[dict]) -> str:
     return (
-        "You are an assistant specialized in transcribing and translating Tunisian ID card fields from Arabic.\n"
-        "- Transcribe all **names** and **places** into Latin script using official Tunisian transliteration rules.\n"
-        "- Translate the `job` field from Arabic to English (e.g., \"تلميذ\" → \"Student\").\n"
-        "- Translate the `address` field from Arabic to English (e.g., \"10, نهج 9 أفريل, اريانة\" → \"10, 9 April Street, Ariana\").\n"
-        "- Convert `dateOfBirth` to YYYY/MM/DD format.\n"
-        "- Convert `dateOfCreation` to YYYY/MM/DD format.\n"
-        "- Do not change the `idNumber`, it must remain the same.\n"
-        "- **The output must contain no Arabic characters anywhere.** All fields must be fully transliterated or translated into Latin script or English.\n\n"
-        "Return a JSON list like this:\n"
+        "Vous êtes un assistant spécialisé dans la transcription et la traduction des champs des cartes d'identité tunisiennes à partir de l'arabe.\n"
+        "- Transcrivez tous les **noms** et **lieux** en alphabet latin en utilisant les règles officielles de translittération tunisiennes.\n"
+        "- Traduisez le champ `job` de l'arabe vers le français (ex : \"تلميذ\" → \"Élève\").\n"
+        "- Traduisez le champ `address` de l'arabe vers le français (ex : \"10, نهج 9 أفريل, اريانة\" → \"10, Rue du 9 Avril, Ariana\").\n"
+        "- Convertissez `dateOfBirth` au format AAAA/MM/JJ.\n"
+        "- Convertissez `dateOfCreation` au format AAAA/MM/JJ.\n"
+        "- Ne modifiez pas `idNumber`, il doit rester inchangé.\n"
+        "- **La sortie ne doit contenir aucun caractère arabe.** Tous les champs doivent être intégralement translittérés ou traduits en alphabet latin ou en français.\n\n"
+        "Retournez une liste JSON comme ceci :\n"
         """```json
 [
   {
@@ -52,7 +52,6 @@ def build_prompt(batch: List[dict]) -> str:
   }
 ]
 ```"""
-        f"\n\nInput data:\n{json.dumps(batch, ensure_ascii=False, indent=2)}"
+        f"\n\nDonnées d'entrée :\n{json.dumps(batch, ensure_ascii=False, indent=2)}"
     )
-
 

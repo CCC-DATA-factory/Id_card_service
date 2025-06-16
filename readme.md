@@ -25,7 +25,7 @@ This service provides an API for validation, extracting and translating personal
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-org/unified-tunisian-id-service.git
+git clone https://github.com/CCC-DATA-factory/Id_card_service.git
 cd Id_card_service
 ```
 #### 2. Install dependencies
@@ -34,13 +34,13 @@ python3 -m venv venv
 venv/bin/activate
 pip install -r requirements.txt
 ```
-#### 3. Create your api_keys.env file
-```env
-GOOGLE_API_KEY_1=your_first_api_key
-GOOGLE_API_KEY_2=your_second_api_key
+#### 3. Decrypt API keys file
+Use the PowerShell script to decrypt the api_keys.env file from the encrypted version:
+```bash
+powershell -ExecutionPolicy Bypass -File .\decrypt-env.ps1 -SecretKey "your_secret_key"
 ```
-You can also manage keys dynamically using the /add_api_key endpoint.
-
+You can obtain the secret key by contacting the team or by generating it yourself.
+API keys can also be managed dynamically using the /add_api_key endpoint.
 #### 4. Start the service
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -66,50 +66,6 @@ Returns:
   "message": "Unified Tunisian ID service is running."
 }
 ```
-### `POST /transcript`
-
-Batch process structured Arabic data to return transliterated/translated Tunisian ID card data.
-
-Request Body: (JSON array of objects)
-
-```json
-[
-  {
-    "idNumber": "-sensitive_information-",
-    "lastName": "دبوسي",
-    "firstName": "فاروق",
-    "fatherFullName": "بن جمال بن علي",
-    "dateOfBirth": "21 ديسمبر 1999",
-    "placeOfBirth": "تونس",
-    "motherFullName": "سامية المنصور",
-    "job": "تلميذ",
-    "address": "10 نهج 9 أفريل اريانة",
-    "dateOfCreation": "26 اوت 2017"
-  }
-]
-```
-Returns:
-
-- 200 OK with list of transliterated/transformed JSON objects
-```json
-[
-    {
-        "idNumber": "-sensitive_information-",
-        "lastName": "Dabbousi",
-        "firstName": "Farouk",
-        "fatherFullName": "Ben Jamal Ben Ali",
-        "dateOfBirth": "1999/12/21",
-        "placeOfBirth": "Tunis",
-        "motherFullName": "Samia Mansour",
-        "job": "Student",
-        "address": "10, 9 April Street, Ariana",
-        "dateOfCreation": "2017/08/26"
-    }
-]
-```
-
-- 500 Internal Server Error if processing fails
-
 
 ### `POST /front`
 
@@ -173,6 +129,51 @@ Returns:
 ```
 
 - 500 Internal Server Error on processing failure ( could be inclear id card or not valid)
+
+### `POST /transcript`
+
+Batch process structured Arabic data to return transliterated/translated Tunisian ID card data.
+
+Request Body: (JSON array of objects)
+
+```json
+[
+  {
+    "idNumber": "-sensitive_information-",
+    "lastName": "دبوسي",
+    "firstName": "فاروق",
+    "fatherFullName": "بن جمال بن علي",
+    "dateOfBirth": "21 ديسمبر 1999",
+    "placeOfBirth": "تونس",
+    "motherFullName": "سامية المنصور",
+    "job": "تلميذ",
+    "address": "10 نهج 9 أفريل اريانة",
+    "dateOfCreation": "26 اوت 2017"
+  }
+]
+```
+Returns:
+
+- 200 OK with list of transliterated/transformed JSON objects
+```json
+[
+    {
+        "idNumber": "-sensitive_information-",
+        "lastName": "Dabbousi",
+        "firstName": "Farouk",
+        "fatherFullName": "Ben Jamal Ben Ali",
+        "dateOfBirth": "1999/12/21",
+        "placeOfBirth": "Tunis",
+        "motherFullName": "Samia Mansour",
+        "job": "Student",
+        "address": "10, 9 April Street, Ariana",
+        "dateOfCreation": "2017/08/26"
+    }
+]
+```
+
+- 500 Internal Server Error if processing fails
+
 
 ### POST /add_api_key
 Add a new Gemini API key at runtime.
