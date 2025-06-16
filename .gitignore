@@ -2,3 +2,4 @@ api_keys.env
 venv/
 __pycache__/
 encrypt-env.ps1
+tests/

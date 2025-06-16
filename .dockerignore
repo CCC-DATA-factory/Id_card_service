@@ -1,2 +1,3 @@
 venv/
 encrypt-env.ps1
+tests/
