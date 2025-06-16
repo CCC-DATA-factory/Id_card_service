@@ -1,5 +1,5 @@
+encrypt-env.ps1
 api_keys.env
 venv/
 __pycache__/
-encrypt-env.ps1
 tests/
