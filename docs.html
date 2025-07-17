@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tunisian ID Card Service API Documentation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #f5f5f5; }
+    pre { background: #f0f0f0; padding: 1rem; overflow-x: auto; }
+    code { color: #c7254e; background: #f9f2f4; padding: 0.2rem 0.4rem; }
+    ul { margin: 0; padding-left: 1.2rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Tunisian ID Card Service API</h1>
+  <p>AI‑powered extraction and transcription of Tunisian ID cards.</p>
+
+  <h2>1. POST <code>/front</code></h2>
+  <p><strong>Extract front-side fields</strong> of a Tunisian ID card image.</p>
+  <table>
+    <tr><th>URL</th><td><code>/front</code></td></tr>
+    <tr><th>Method</th><td>POST</td></tr>
+    <tr><th>Content‑Type</th><td>multipart/form-data</td></tr>
+    <tr><th>Request</th>
+      <td>
+        <ul>
+          <li><code>image</code> (file): JPEG/PNG front-side image</li>
+        </ul>
+      </td>
+    </tr>
+    <tr><th>Response (200)</th>
+      <td>
+        <pre>{
+  "data": {
+    "idNumber": "string",
+    "lastName": "string",
+    "firstName": "string",
+    "fatherFullName": "string",
+    "dateOfBirth": "YYYY-MM-DD",
+    "placeOfBirth": "string"
+  },
+  "audit": { /* FullPromptValue */ }
+}</pre>
+      </td>
+    </tr>
+    <tr><th>Errors</th>
+      <td>
+        <ul>
+          <li><code>422</code> Validation retries exhausted</li>
+          <li><code>429</code> Quota exhausted</li>
+          <li><code>500/503</code> Configuration or external API error</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <h2>2. POST <code>/back</code></h2>
+  <p><strong>Extract back-side fields</strong> of a Tunisian ID card image.</p>
+  <table>
+    <tr><th>URL</th><td><code>/back</code></td></tr>
+    <tr><th>Method</th><td>POST</td></tr>
+    <tr><th>Content‑Type</th><td>multipart/form-data</td></tr>
+    <tr><th>Request</th>
+      <td><code>image</code> (file): JPEG/PNG back-side image</td>
+    </tr>
+    <tr><th>Response (200)</th>
+      <td>
+        <pre>{
+  "data": {
+    "motherFullName": "string",
+    "job": "string",
+    "address": "string",
+    "dateOfCreation": "YYYY-MM-DD"
+  },
+  "audit": { /* FullPromptValue */ }
+}</pre>
+      </td>
+    </tr>
+    <tr><th>Errors</th>
+      <td>
+        <ul>
+          <li><code>422</code> Validation retries exhausted</li>
+          <li><code>429</code> Quota exhausted</li>
+          <li><code>500/503</code> Configuration or external API error</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <h2>3. POST <code>/transcript</code></h2>
+  <p><strong>Transcribe & validate</strong> a batch of full ID card data.</p>
+  <table>
+    <tr><th>URL</th><td><code>/transcript</code></td></tr>
+    <tr><th>Method</th><td>POST</td></tr>
+    <tr><th>Content‑Type</th><td>application/json</td></tr>
+    <tr><th>Request Body</th>
+      <td>
+        <pre>[
+  {
+    "idNumber":"string",
+    "lastName":"string",
+    "firstName":"string",
+    "fatherFullName":"string",
+    "dateOfBirth":"YYYY-MM-DD",
+    "placeOfBirth":"string",
+    "motherFullName":"string",
+    "job":"string",
+    "address":"string",
+    "dateOfCreation":"YYYY-MM-DD"
+  }
+]</pre>
+      </td>
+    </tr>
+    <tr><th>Response (200)</th>
+      <td>
+        <pre>{
+  "results": [
+    {
+      "idNumber": "string",
+      "lastName": "string",
+      "firstName": "string",
+      "fatherFullName": "string",
+      "dateOfBirth": "YYYY-MM-DD",
+      "placeOfBirth": "string",
+      "motherFullName": "string",
+      "job": "string",
+      "address": "string",
+      "dateOfCreation": "YYYY-MM-DD"
+    }
+  ],
+  "pv": { /* FullPromptValue */ }
+}</pre>
+      </td>
+    </tr>
+    <tr><th>Errors</th>
+      <td>
+        <ul>
+          <li><code>422</code> Validation retries exhausted</li>
+          <li><code>429</code> Quota exhausted</li>
+          <li><code>503</code> External API error</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <h2>Models</h2>
+
+  <h3><code>TunisianIDCardFront</code></h3>
+  <table>
+    <tr><th>Field</th><th>Type</th></tr>
+    <tr><td>idNumber</td><td>str</td></tr>
+    <tr><td>lastName</td><td>str</td></tr>
+    <tr><td>firstName</td><td>str</td></tr>
+    <tr><td>fatherFullName</td><td>str</td></tr>
+    <tr><td>dateOfBirth</td><td>str (YYYY-MM-DD)</td></tr>
+    <tr><td>placeOfBirth</td><td>str</td></tr>
+  </table>
+
+  <h3><code>TunisianIDCardBack</code></h3>
+  <table>
+    <tr><th>Field</th><th>Type</th></tr>
+    <tr><td>motherFullName</td><td>str</td></tr>
+    <tr><td>job</td><td>str</td></tr>
+    <tr><td>address</td><td>str</td></tr>
+    <tr><td>dateOfCreation</td><td>str (YYYY-MM-DD)</td></tr>
+  </table>
+
+  <h3><code>TunisianIDCardData</code></h3>
+  <table>
+    <tr><th>Field</th><th>Type</th></tr>
+    <tr><td>idNumber</td><td>str</td></tr>
+    <tr><td>lastName</td><td>str</td></tr>
+    <tr><td>firstName</td><td>str</td></tr>
+    <tr><td>fatherFullName</td><td>str</td></tr>
+    <tr><td>dateOfBirth</td><td>str (YYYY-MM-DD)</td></tr>
+    <tr><td>placeOfBirth</td><td>str</td></tr>
+    <tr><td>motherFullName</td><td>str</td></tr>
+    <tr><td>job</td><td>str</td></tr>
+    <tr><td>address</td><td>str</td></tr>
+    <tr><td>dateOfCreation</td><td>str (YYYY-MM-DD)</td></tr>
+  </table>
+
+  <h3><code>FullPromptValue</code> (audit/pv)</h3>
+  <pre>{
+  "total_api_calls": int,
+  "total_input_tokens": int,
+  "total_output_tokens": int,
+  "attempts": [ /* list of AttemptInfo */ ],
+  "keys_used": ["str"],
+  "start_time": float,
+  "duration_total": float
+}</pre>
+
+  <h3><code>AttemptInfo</code></h3>
+  <pre>{
+  "timestamp": float,
+  "key": "str|null",
+  "status": "success|validation_error|resource_exhausted|system_error",
+  "input_tokens": int,
+  "output_tokens": int,
+  "error_type": "str|null",
+  "error_msg": "str|null",
+  "duration": float|null
+}</pre>
+
+  <h2>Quick cURL Examples</h2>
+  <pre>
+# Front side
+curl -X POST http://HOST:8031/front \
+  -F "image=@/path/to/front.jpg"
+
+# Back side
+curl -X POST http://HOST:8031/back \
+  -F "image=@/path/to/back.jpg"
+
+# Transcript
+curl -X POST http://HOST:8031/transcript \
+  -H "Content-Type: application/json" \
+  -d '[{ "idNumber":"...", ... }]'
+  </pre>
+
+</body>
+</html>
