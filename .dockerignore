@@ -1,0 +1,26 @@
+# Ignore Python cache
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtual environments
+app/venv/
+
+# Ignore logs
+app/logs/
+*.log
+
+# Ignore tests
+app/tests/
+
+# Ignore environment files and encryption scripts
+api_keys.env
+api_keys.env.enc
+encrypt-env.ps1
+decrypt-env.ps1
+
+# Ignore Git and other system files
+.git/
+.gitignore
+.DS_Store

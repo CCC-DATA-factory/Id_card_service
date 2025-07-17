@@ -1,0 +1,17 @@
+# Ignore virtual environment
+app/venv/
+
+# Ignore Python cache
+__pycache__/
+**/__pycache__/
+
+# Ignore test and log directories
+app/tests/
+app/logs/
+
+# Ignore encrypted env file
+encrypt-env.ps1
+api_keys.env
+
+# Optional: ignore all .env or .enc files globally
+*.env
