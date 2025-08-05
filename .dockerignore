@@ -19,7 +19,7 @@ api_keys.env
 api_keys.env.enc
 encrypt-env.ps1
 decrypt-env.ps1
-
+app/api_keys.env
 # Ignore Git and other system files
 .git/
 .gitignore
