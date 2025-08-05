@@ -5,7 +5,7 @@
 
 
 EncryptedPath="api_keys.env.enc"
-OutputPath="api_keys.env"
+OutputPath="app/api_keys.env"
 SecretKey=""
 
 # Parse params
