@@ -1,4 +1,3 @@
-# models/pv.py
 
 from typing import List, Optional, Literal, Dict, Union
 from pydantic import BaseModel

@@ -70,11 +70,13 @@ class TunisianIDCardBack(BaseModel):
 class FrontResponse(BaseModel):
     data: TunisianIDCardFront
     audit: FullPromptValue
-
+    duration : str
 class BackResponse(BaseModel):
     data: TunisianIDCardBack
     audit: FullPromptValue
+    duration : str
 
 class TranscriptResponse(BaseModel):
     results: List[TunisianIDCardData]
     pv: FullPromptValue
+    duration : str

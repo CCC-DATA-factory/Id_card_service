@@ -17,6 +17,7 @@ router = APIRouter()
 
 @router.post("/transcript", response_model=TranscriptResponse)
 async def process_id_card_list(request: Request, data: list[TranscriptionRequest]):
+    start = time.time()
     logger.info("[API] /transcript called")
     input_dicts = [item.dict() for item in data]
     batches = split_batches(input_dicts, MAX_BATCH_SIZE)
@@ -37,7 +38,7 @@ async def process_id_card_list(request: Request, data: list[TranscriptionRequest
         prompt = PROMPT_TRANSCRIPTION + json.dumps(batch, ensure_ascii=False, indent=2)
 
         try:
-            response_with_pv = await llm.generate([prompt], output_model=TunisianIDCardData)
+            response_with_pv = await llm.process_task_async([prompt], output_model=TunisianIDCardData)
             parsed = response_with_pv["result"]
             pv = response_with_pv["pv"]
 
@@ -77,8 +78,9 @@ async def process_id_card_list(request: Request, data: list[TranscriptionRequest
         logger.warning(f"[PV] Failed to save prompt value info: {e}")
 
     logger.info(f"[RESULT] Total valid items: {len(results)}")
-
+    duration = time.time() - start
     return TranscriptResponse(
         results=results,
-        pv=FullPromptValue(**merged_pv)
+        pv=FullPromptValue(**merged_pv),
+        duration=str(duration)
     )
