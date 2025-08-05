@@ -10,7 +10,7 @@ env_path = parent_dir / "api_keys.env"
 load_dotenv(dotenv_path=env_path)
 
 CONFIGS = [
-    {"name": f"gemini-worker-{i}", "model": "gemini-2.0-flash", "api_key": os.getenv(f"GOOGLE_API_KEY_{i}")}
+    {"name": f"gemini-worker-{i}", "model": "gemini-2.5-flash-lite", "api_key": os.getenv(f"GOOGLE_API_KEY_{i}")}
     for i in range(1, 5)
 ]
 
