@@ -82,5 +82,5 @@ MAX_HEIGHT = 512
 
 LOGS_PATH = "logs/service.log"
 PV_PATH = "logs/pv"
-PORT= 8000
+PORT= 8001
 HOST="0.0.0.0"
