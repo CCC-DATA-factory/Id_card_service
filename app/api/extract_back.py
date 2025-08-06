@@ -1,45 +1,63 @@
 import io
 import logging
 import time
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from config import MAX_HEIGHT, MAX_WIDTH, PROMPT_TUNISIAN_ID_BACK, PV_PATH
 from utils.prompt_utils import resize_id_card_image, save_pv
-from exceptions.llm_exceptions import ValidationRetryError
 from models.id_card import BackResponse, TunisianIDCardBack
 from api import llm
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
 @router.post("/back", response_model=BackResponse)
-async def extract_front(request: Request, image: UploadFile = File(...)):
+async def extract_back(request: Request, image: UploadFile = File(...)):
     start = time.time()
-    logger.info("[API] /extract/back called")
-    prompt = PROMPT_TUNISIAN_ID_BACK
+    logger.info("[API] /back called")
+
+    # Input validation
+    if not image or image.filename == "":
+        raise HTTPException(status_code=400, detail="No image file provided.")
+
     try:
-        img = Image.open(io.BytesIO(await image.read()))
-        resized_img = resize_id_card_image(img,MAX_WIDTH,MAX_HEIGHT)
-        result_with_pv = await llm.process_task_async([prompt, resized_img], TunisianIDCardBack)
         try:
-            save_pv("tunisian_id_back", result_with_pv["pv"],save_dir=PV_PATH)
+            img = Image.open(io.BytesIO(await image.read()))
+        except UnidentifiedImageError:
+            raise HTTPException(status_code=400, detail="Uploaded file is not a valid image.")
+
+        resized_img = resize_id_card_image(img, MAX_WIDTH, MAX_HEIGHT)
+
+        result_with_pv = await llm.process_task_async(
+            [PROMPT_TUNISIAN_ID_BACK, resized_img],
+            TunisianIDCardBack
+        )
+
+        if result_with_pv.get("status") == "error":
+            logger.warning(f"[LLM] LLM processing failed: {result_with_pv.get('error_msg')}")
+            raise HTTPException(
+                status_code=503,
+                detail=result_with_pv.get("error_msg", "LLM failed to process the request.")
+            )
+
+        try:
+            save_pv(indicator="tunisian_id_back", pv=result_with_pv["pv"], save_dir=PV_PATH)
         except Exception as e:
             logger.warning(f"[PV] Failed to save prompt value info: {e}")
-        duration = time.time() - start
 
+        duration = time.time() - start
         return BackResponse(
-            data = result_with_pv["result"],
-            audit = result_with_pv["pv"],
-            duration = str(duration)
+            data=result_with_pv["result"],
+            audit=result_with_pv["pv"],
+            duration=str(duration)
         )
-    except ValidationRetryError as e:
-        raise HTTPException(status_code=422, detail=f"Validation failed after retries: {e}")
-    except RuntimeError as e:
-        msg = str(e).lower()
-        if "quota" in msg:
-            raise HTTPException(status_code=429, detail="Quota exhausted, please try again later.")
-        elif "configuration" in msg:
-            raise HTTPException(status_code=500, detail="Configuration error in API keys or client.")
-        else:
-            raise HTTPException(status_code=503, detail="External API error, please try again later.")
+
+    except HTTPException:
+        raise  # Re-raise known FastAPI errors directly
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+        logger.error(f"[SERVER] Unexpected error in /back: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred during processing. Please try again later."
+        )

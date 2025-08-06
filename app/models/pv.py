@@ -14,6 +14,8 @@ class AttemptInfo(BaseModel):
 
 class FullPromptValue(BaseModel):
     total_api_calls: int
+    model: str
+    instance_name: str
     total_input_tokens: int
     total_output_tokens: int
     attempts: List[AttemptInfo]

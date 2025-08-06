@@ -2,20 +2,17 @@ import json
 import logging
 import time
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
 from api import llm
 from models.pv import FullPromptValue
 from config import MAX_BATCH_SIZE, PROMPT_TRANSCRIPTION
-from exceptions.llm_exceptions import ValidationRetryError
 from models.id_card import TranscriptResponse, TunisianIDCardData
 from models.transcription import TranscriptionRequest
 from utils.prompt_utils import save_pv, split_batches
 
-
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-@router.post("/transcript", response_model=TranscriptResponse)
+@router.post("/transcript")
 async def process_id_card_list(request: Request, data: list[TranscriptionRequest]):
     start = time.time()
     logger.info("[API] /transcript called")
@@ -39,6 +36,14 @@ async def process_id_card_list(request: Request, data: list[TranscriptionRequest
 
         try:
             response_with_pv = await llm.process_task_async([prompt], output_model=TunisianIDCardData)
+
+            if response_with_pv.get("status") == "error":
+                logger.warning(f"[LLM] LLM processing failed: {response_with_pv.get('error_msg')}")
+                raise HTTPException(
+                    status_code=503,
+                    detail=response_with_pv.get("error_msg", "LLM failed to process the request.")
+                )
+
             parsed = response_with_pv["result"]
             pv = response_with_pv["pv"]
 
@@ -52,35 +57,25 @@ async def process_id_card_list(request: Request, data: list[TranscriptionRequest
             results.extend(parsed_items)
             logger.info(f"[BATCH {batch_index}] Batch validated and added to results")
 
-        except ValidationRetryError as ve:
-            logger.error(f"[BATCH {batch_index}] Validation failed after retries: {ve}")
-            raise HTTPException(status_code=422, detail=f"Validation failed after retries: {ve}")
-
-        except RuntimeError as re:
-            msg = str(re).lower()
-            if "quota" in msg:
-                logger.error(f"[BATCH {batch_index}] Quota exhausted: {re}")
-                raise HTTPException(status_code=429, detail="Quota exhausted, please try later.")
-            else:
-                logger.error(f"[BATCH {batch_index}] Runtime error: {re}")
-                raise HTTPException(status_code=503, detail="External API error, please try later.")
-
+        except HTTPException:
+            raise
         except Exception as e:
-            logger.error(f"[BATCH {batch_index}] Unexpected error: {e}")
-            raise HTTPException(status_code=500, detail=f"Error processing batch: {e}")
+            logger.error(f"[BATCH {batch_index}] Unexpected error: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="An error occurred during processing. Please try again later.")
 
     merged_pv["keys_used"] = list(merged_pv["keys_used"])
     merged_pv["duration_total"] = time.time() - merged_pv["start_time"]
-
+    merged_pv["model"] = pv["model"]
+    merged_pv["instance_name"] = pv["instance_name"]
     try:
-        save_pv(indicator_name="id_card_transcription", pv=merged_pv)
+        save_pv(indicator="id_card_transcription", pv=merged_pv)
     except Exception as e:
         logger.warning(f"[PV] Failed to save prompt value info: {e}")
 
     logger.info(f"[RESULT] Total valid items: {len(results)}")
     duration = time.time() - start
-    return TranscriptResponse(
-        results=results,
-        pv=FullPromptValue(**merged_pv),
-        duration=str(duration)
-    )
+    return {
+        "results": results,
+        "pv": merged_pv,
+        "duration": str(duration)
+    }

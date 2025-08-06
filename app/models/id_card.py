@@ -3,6 +3,7 @@ from pydantic import BaseModel, field_validator
 import re
 import regex as re
 
+from models.combined import TunisianIDCardResponse
 from models.pv import FullPromptValue
 
 LATIN_ALLOWED_PATTERN = re.compile(
@@ -79,4 +80,9 @@ class BackResponse(BaseModel):
 class TranscriptResponse(BaseModel):
     results: List[TunisianIDCardData]
     pv: FullPromptValue
+    duration : str
+
+class IdServiceResponse(BaseModel):
+    results: dict
+    pv: dict
     duration : str
