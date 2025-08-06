@@ -5,7 +5,7 @@ services:
     image: faroukdaboussi0/id_card_service:latest
     container_name: id_card_service
     volumes:
-      - ./api_keys.env:/app/api_keys.env        
+      - ./api_keys.env:/app/app/api_keys.env        
       - ./logs/:/app/app/logs/                  
     ports:
       - "8000:8000"
