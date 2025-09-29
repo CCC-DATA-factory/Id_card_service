@@ -36,7 +36,7 @@ class GeminiClient:
         genai.configure(api_key=self.api_key)
         self.max_validation_retries = 2
         self.SYSTEM_MAX_RETRIES = 4
-
+    
     def generate(self,
              prompt: Union[str, List[Union[str, Image.Image]]],
              output_model: Type[BaseModel]) -> Dict[str, Any]:
