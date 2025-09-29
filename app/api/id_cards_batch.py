@@ -35,14 +35,12 @@ async def id_cards_batch(
 
         batch_inputs = []
         for i, (front, back) in enumerate(zip(fronts, backs), start=1):
-            # FRONT IMAGE
             try:
                 front_img = Image.open(io.BytesIO(await front.read())) if front else create_dummy_image()
             except (UnidentifiedImageError, Exception):
                 logger.warning(f"[WARN] Invalid or missing front image for card {i}. Using dummy.")
                 front_img = create_dummy_image()
 
-            # BACK IMAGE
             try:
                 back_img = Image.open(io.BytesIO(await back.read())) if back else create_dummy_image()
             except (UnidentifiedImageError, Exception):
@@ -54,7 +52,6 @@ async def id_cards_batch(
 
             batch_inputs.append([front_resized, back_resized])
 
-        # Build prompt with all couples
         result_with_pv = await llm.process_task_async(
             [PROMPT_TUNISIAN_ID_BATCH] + [img for pair in batch_inputs for img in pair],
             TunisianIDCardResponse  
