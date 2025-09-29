@@ -13,5 +13,8 @@ app/logs/
 encrypt-env.ps1
 api_keys.env
 app/api_keys.env
-# Optional: ignore all .env or .enc files globally
+
 *.env
+Performance Rapport.xlsx
+~$Performance Rapport.xlsx
+logs/
