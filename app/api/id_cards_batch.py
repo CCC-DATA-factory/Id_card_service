@@ -6,7 +6,7 @@ from PIL import Image, UnidentifiedImageError
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from models.combined import TunisianIDCardResponse
-from config import MAX_HEIGHT, MAX_WIDTH, PROMPT_TUNISIAN_ID, PROMPT_TUNISIAN_ID_BATCH, PV_PATH
+from config import MAX_HEIGHT, MAX_WIDTH, PROMPT_TUNISIAN_ID, PROMPT_TUNISIAN_ID_BATCH_MESSY_V2, PV_PATH
 from utils.prompt_utils import resize_id_card_image, save_pv
 from api import llm
 
@@ -53,7 +53,7 @@ async def id_cards_batch(
             batch_inputs.append([front_resized, back_resized])
 
         result_with_pv = await llm.process_task_async(
-            [PROMPT_TUNISIAN_ID_BATCH] + [img for pair in batch_inputs for img in pair],
+            [PROMPT_TUNISIAN_ID_BATCH_MESSY_V2] + [img for pair in batch_inputs for img in pair],
             TunisianIDCardResponse  
         )
 
