@@ -8,7 +8,7 @@ __pycache__/
 # Ignore test and log directories
 app/tests/
 app/logs/
-
+logs/
 # Ignore encrypted env file
 encrypt-env.ps1
 api_keys.env
