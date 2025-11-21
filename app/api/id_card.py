@@ -9,10 +9,11 @@ from prometheus_client import Counter, Summary, generate_latest, CONTENT_TYPE_LA
 from models.combined import TunisianIDCardResponse
 from config import MAX_HEIGHT, MAX_WIDTH, PROMPT_TUNISIAN_ID, PV_PATH
 from utils.prompt_utils import resize_id_card_image, save_pv
-from api import llm
+from api import llm , validator
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
 
 # Prometheus metrics
 REQUEST_COUNT = Counter("id_card_requests_total", "Total ID card requests", ["status"])
@@ -57,6 +58,18 @@ async def id_card(request: Request, front: UploadFile = File(None), back: Upload
             logger.warning(f"[WARN] Back image error: {e}. Using dummy.")
             ERROR_COUNT.labels(error_type="back_image_error").inc()
             back_img = create_dummy_image()
+
+        #---------------------------------------------------------------------
+        #---------------------------------------------------------------------
+        result = validator.validate_card_pair(front_img, back_img)
+        if not result['data']['back']['status'] or not result['data']['front']['status']:
+             return result
+
+
+
+        #---------------------------------------------------------------------
+        #---------------------------------------------------------------------    
+
 
         front_resized = resize_id_card_image(front_img, MAX_WIDTH, MAX_HEIGHT)
         back_resized = resize_id_card_image(back_img, MAX_WIDTH, MAX_HEIGHT)

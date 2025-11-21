@@ -357,6 +357,12 @@ REMEMBER: Be STRICT with validation, PRECISE with extraction, NEVER guess values
 """
 
 #-------------------------------------------------
+#---------------validation---------------------
+CONFIDANCE_THRESHOLD = 0.8
+
+
+
+#-------------------------------------------------
 #---------------Transcription---------------------
 
 MAX_BATCH_SIZE = 20
