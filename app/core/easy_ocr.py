@@ -1,4 +1,4 @@
-import easyocr
+#import easyocr
 import re
 from typing import Optional
 from PIL import Image
