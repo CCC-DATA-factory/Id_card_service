@@ -69,21 +69,21 @@ async def id_card(request: Request, front: UploadFile = File(None), back: Upload
                 "front": {
                     "status": "Valid",
                     "data": {
-                    "idNumber": " ",
-                    "lastName": " ",
-                    "firstName": " ",
-                    "fatherFullName": " ",
-                    "dateOfBirth": " ",
-                    "placeOfBirth": " "
+                    "idNumber": "UNKNOWN",
+                    "lastName": "UNKNOWN",
+                    "firstName": "UNKNOWN",
+                    "fatherFullName": "UNKNOWN",
+                    "dateOfBirth": "UNKNOWN",
+                    "placeOfBirth": "UNKNOWN"
                     }
                 },
                 "back": {
                     "status": "Valid",
                     "data": {
-                    "motherFullName": " ",
-                    "job": " ",
-                    "address": " ",
-                    "dateOfCreation": " "
+                    "motherFullName": "UNKNOWN",
+                    "job": "UNKNOWN",
+                    "address": "UNKNOWN",
+                    "dateOfCreation": "UNKNOWN"
                     }
                 }
                 }
