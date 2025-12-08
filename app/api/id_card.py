@@ -9,7 +9,7 @@ from prometheus_client import Counter, Summary, generate_latest, CONTENT_TYPE_LA
 from models.combined import TunisianIDCardResponse
 from config import MAX_HEIGHT, MAX_WIDTH, PROMPT_TUNISIAN_ID, PV_PATH
 from utils.prompt_utils import resize_id_card_image, save_pv
-from api import llm , validator
+from api import llm , validator , ocr
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -62,14 +62,20 @@ async def id_card(request: Request, front: UploadFile = File(None), back: Upload
         #---------------------------------------------------------------------
         #---------------------------------------------------------------------
         result = validator.validate_card_pair(front_img, back_img)
-        if not result['data']['back']['status'] or not result['data']['front']['status']:
+        front_resized = resize_id_card_image(front_img, MAX_WIDTH, MAX_HEIGHT)
+        if  result['data']['back']['status'] == "invalid" or  result['data']['front']['status'] == "invalid":
              return result
+        
+        cin = ocr.extract_id_number(front_resized, min_confidence=0.6)
+        if not cin:
+            result['data']['front']['status'] = "invalid"
+            return result
         #---------------------------------------------------------------------
         dummy_response = {
                 "front": {
                     "status": "Valid",
                     "data": {
-                    "idNumber": "UNKNOWN",
+                    "idNumber": cin,
                     "lastName": "UNKNOWN",
                     "firstName": "UNKNOWN",
                     "fatherFullName": "UNKNOWN",
@@ -110,6 +116,8 @@ async def id_card(request: Request, front: UploadFile = File(None), back: Upload
             ERROR_COUNT.labels(error_type="llm_error").inc()
             REQUEST_COUNT.labels(status="error").inc()
             logger.warning(f"[LLM] LLM processing failed: {result_with_pv.get('error_msg')}")
+            ERROR_COUNT.labels(error_type="unexpected_error").inc()
+
             raise HTTPException(
                 status_code=503,
                 detail=result_with_pv.get("error_msg", "LLM failed to process the request.")

@@ -255,7 +255,7 @@ class IdCardValidator:
         return {
             "data": {
                 "front": {
-                    "status": True if class_front_id == 0 and front_centred else False,
+                    "status": "valid" if class_front_id == 0 and front_centred else "invalid",
                     "data": {
                         "confidence": confidence_front,
                         "bbox": bbox_front,
@@ -263,7 +263,7 @@ class IdCardValidator:
                     }
                 },
                 "back": {
-                    "status": True if class_back_id == 1 and back_centred else False,
+                    "status": "valid" if class_back_id == 1 and back_centred else "invalid",
                     "data": {
                         "confidence": confidence_back,
                         "bbox": bbox_back,
