@@ -64,7 +64,34 @@ async def id_card(request: Request, front: UploadFile = File(None), back: Upload
         result = validator.validate_card_pair(front_img, back_img)
         if not result['data']['back']['status'] or not result['data']['front']['status']:
              return result
-
+        #---------------------------------------------------------------------
+        dummy_response = {
+                "front": {
+                    "status": "Valid",
+                    "data": {
+                    "idNumber": " ",
+                    "lastName": " ",
+                    "firstName": " ",
+                    "fatherFullName": " ",
+                    "dateOfBirth": " ",
+                    "placeOfBirth": " "
+                    }
+                },
+                "back": {
+                    "status": "Valid",
+                    "data": {
+                    "motherFullName": " ",
+                    "job": " ",
+                    "address": " ",
+                    "dateOfCreation": " "
+                    }
+                }
+                }
+        return {
+            "data":dummy_response,
+            "audit": "OCR only - no LLM called",
+            "duration": "None"
+        }
 
 
         #---------------------------------------------------------------------
