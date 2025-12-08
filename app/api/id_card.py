@@ -9,6 +9,7 @@ from prometheus_client import Counter, Summary, generate_latest, CONTENT_TYPE_LA
 from models.combined import TunisianIDCardResponse
 from config import MAX_HEIGHT, MAX_WIDTH, PROMPT_TUNISIAN_ID, PV_PATH
 from utils.prompt_utils import resize_id_card_image, save_pv
+
 from api import llm , validator #, ocr
 
 logger = logging.getLogger(__name__)
