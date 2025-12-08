@@ -157,7 +157,7 @@ class IdCardValidator:
         return keep
 
 
-    def check_centred(self, image: Image.Image, bbox, margin_percent=0.05):
+    def check_centred(self, image: Image.Image, bbox, margin_percent=0.001):
         """
         Check if the bounding box is centered in the image with adequate margins.
         
