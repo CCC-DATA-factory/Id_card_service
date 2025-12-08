@@ -1,4 +1,4 @@
-"""import easyocr
+import easyocr
 import re
 from typing import Optional
 from PIL import Image
@@ -7,7 +7,13 @@ import numpy as np
 
 class EasyOCR:
     def __init__(self, languages: list = ['en', 'fr'], gpu: bool = False):
-
+        """
+        Initialize EasyOCR reader
+        
+        Args:
+            languages: List of languages to detect (default: ['en', 'fr'] for Tunisian IDs)
+            gpu: Whether to use GPU acceleration
+        """
         self.reader = easyocr.Reader(languages, gpu=gpu)
     
     def extract_id_number(
@@ -15,7 +21,16 @@ class EasyOCR:
         image: Image.Image, 
         min_confidence: float = 0.5
     ) -> Optional[str]:
-
+        """
+        Extract 8 consecutive digits (CIN) from an image with high confidence
+        
+        Args:
+            image: PIL Image object
+            min_confidence: Minimum confidence threshold (0.0 to 1.0)
+        
+        Returns:
+            CIN string (8 digits) if found, None otherwise
+        """
         # Convert PIL Image to numpy array
         img_array = np.array(image)
         
@@ -51,7 +66,15 @@ class EasyOCR:
         return best_match
     
     def extract_all_text(self, image: Image.Image) -> list:
-
+        """
+        Extract all text from image with bounding boxes and confidence
+        
+        Args:
+            image: PIL Image object
+        
+        Returns:
+            List of tuples: (bbox, text, confidence)
+        """
         img_array = np.array(image)
         results = self.reader.readtext(img_array)
         return results
@@ -61,7 +84,16 @@ class EasyOCR:
         image: Image.Image, 
         min_confidence: float = 0.5
     ) -> dict:
-      
+        """
+        Extract ID number with detailed information
+        
+        Args:
+            image: PIL Image object
+            min_confidence: Minimum confidence threshold
+        
+        Returns:
+            Dictionary with all 8-digit candidates and their details
+        """
         img_array = np.array(image)
         results = self.reader.readtext(img_array)
         
@@ -105,4 +137,3 @@ class EasyOCR:
         }
 
 
-"""

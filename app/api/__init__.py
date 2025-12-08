@@ -1,7 +1,7 @@
 from config import CONFIDANCE_THRESHOLD
 from core.llm_client import ThreadManager
 from core.id_card_validator import IdCardValidator
-#from core.easy_ocr import EasyOCR
+from core.easy_ocr import EasyOCR
 from dotenv import load_dotenv
 import os
 from pathlib import Path
@@ -25,4 +25,4 @@ CONFIGS_LIGHT = [
 
 llm = ThreadManager(model1_configs=CONFIGS_MAIN , model2_configs =CONFIGS_LIGHT )
 validator = IdCardValidator(model_path=MODEL_PATH,confidence_threshold=CONFIDANCE_THRESHOLD)
-#ocr = EasyOCR(languages=['en'], gpu=False)
+ocr = EasyOCR(languages=['en'], gpu=False)
