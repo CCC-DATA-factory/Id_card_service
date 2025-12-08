@@ -62,42 +62,9 @@ async def id_card(request: Request, front: UploadFile = File(None), back: Upload
         #---------------------------------------------------------------------
         #---------------------------------------------------------------------
         result = validator.validate_card_pair(front_img, back_img)
-        front_resized = resize_id_card_image(front_img, MAX_WIDTH, MAX_HEIGHT)
         if  result['data']['back']['status'] == "invalid" or  result['data']['front']['status'] == "invalid":
              return result
         
-        cin = ocr.extract_id_number(front_resized, min_confidence=0.6)
-        if not cin:
-            result['data']['front']['status'] = "invalid"
-            return result
-        #---------------------------------------------------------------------
-        dummy_response = {
-                "front": {
-                    "status": "Valid",
-                    "data": {
-                    "idNumber": cin,
-                    "lastName": "UNKNOWN",
-                    "firstName": "UNKNOWN",
-                    "fatherFullName": "UNKNOWN",
-                    "dateOfBirth": "UNKNOWN",
-                    "placeOfBirth": "UNKNOWN"
-                    }
-                },
-                "back": {
-                    "status": "Valid",
-                    "data": {
-                    "motherFullName": "UNKNOWN",
-                    "job": "UNKNOWN",
-                    "address": "UNKNOWN",
-                    "dateOfCreation": "UNKNOWN"
-                    }
-                }
-                }
-        return {
-            "data":dummy_response,
-            "audit": "OCR only - no LLM called",
-            "duration": "None"
-        }
 
 
         #---------------------------------------------------------------------
@@ -117,11 +84,39 @@ async def id_card(request: Request, front: UploadFile = File(None), back: Upload
             REQUEST_COUNT.labels(status="error").inc()
             logger.warning(f"[LLM] LLM processing failed: {result_with_pv.get('error_msg')}")
             ERROR_COUNT.labels(error_type="unexpected_error").inc()
+            cin = ocr.extract_id_number(front_resized, min_confidence=0.6)
+            if not cin:
+                result['data']['front']['status'] = "invalid"
+                return result
+            #---------------------------------------------------------------------
+            dummy_response = {
+                    "front": {
+                        "status": "Valid",
+                        "data": {
+                        "idNumber": cin,
+                        "lastName": "UNKNOWN",
+                        "firstName": "UNKNOWN",
+                        "fatherFullName": "UNKNOWN",
+                        "dateOfBirth": "UNKNOWN",
+                        "placeOfBirth": "UNKNOWN"
+                        }
+                    },
+                    "back": {
+                        "status": "Valid",
+                        "data": {
+                        "motherFullName": "UNKNOWN",
+                        "job": "UNKNOWN",
+                        "address": "UNKNOWN",
+                        "dateOfCreation": "UNKNOWN"
+                        }
+                    }
+                    }
+            return {
+                "data":dummy_response,
+                "audit": "OCR only - no LLM called",
+                "duration": "None"
+            }
 
-            raise HTTPException(
-                status_code=503,
-                detail=result_with_pv.get("error_msg", "LLM failed to process the request.")
-            )
 
         try:
             save_pv("tunisian_id_card_all", result_with_pv["pv"], save_dir=PV_PATH)
